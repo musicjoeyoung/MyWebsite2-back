@@ -6,6 +6,7 @@ import { HTTPException } from "hono/http-exception";
 import { Hono } from "hono";
 import { R2Bucket } from '@cloudflare/workers-types';
 import { ZPDFByIDParams } from "./dtos";
+import { cors } from "hono/cors";
 import { dbProvider } from "./middleware/dbProvider";
 import { eq } from "drizzle-orm";
 import { zodValidator } from "./middleware/validator";
@@ -19,12 +20,15 @@ type Env = {
 const api = new Hono<{ Bindings: Env }>()
   //const api = new Hono()
   .use("*", dbProvider)
+  .use("*", cors())
   .get("/pdfs", async (c) => {
     const db = c.var.db;
     const pdfs = await db.select().from(schema.pdfs);
 
     return c.json(pdfs);
   })
+
+
 api.get("/pdfs/:id/file", async (c) => {
   const { id } = c.req.param();
 

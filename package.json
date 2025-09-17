@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@fiberplane/hono": "0.5.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.43.1",
     "drizzle-zod": "^0.7.1",
