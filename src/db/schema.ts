@@ -1,36 +1,23 @@
-import { type SQL, sql } from "drizzle-orm";
 import {
-  type AnySQLiteColumn,
   sqliteTable,
   text,
-  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+
+import { sql } from "drizzle-orm";
 
 const currentTimestamp = () => {
   return sql`(CURRENT_TIMESTAMP)`;
 };
 
-const lower = (email: AnySQLiteColumn): SQL => {
-  return sql`lower(${email})`;
-};
+export type NewPDF = typeof pdfs.$inferInsert;
 
-export type NewUser = typeof users.$inferInsert;
-
-export const users = sqliteTable(
-  "users",
+export const pdfs = sqliteTable(
+  "pdfs",
   {
-    // .primaryKey() must be chained before $defaultFn
     id: text()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    name: text().notNull(),
-    email: text().notNull(),
-    createdAt: text().notNull().default(currentTimestamp()),
-    updatedAt: text().notNull().default(currentTimestamp()),
-  },
-  /**
-   * Ensure case-insensitive uniqueness for email
-   * @see https://orm.drizzle.team/docs/guides/unique-case-insensitive-email#sqlite
-   */
-  (table) => [uniqueIndex("emailUniqueIndex").on(lower(table.email))],
+    filename: text("filename").notNull(),    // original filename
+    storageKey: text("storage_key").notNull() // key in R2
+  }
 );

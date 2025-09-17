@@ -1,18 +1,16 @@
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
 import * as schema from "../db/schema";
 
-export const ZUserInsert = createInsertSchema(schema.users, {
-  email: (schema) => schema.email(),
-}).pick({
-  name: true,
-  email: true,
+import { createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const ZPDFSelect = createSelectSchema(schema.pdfs, {
+  id: (schema) => schema.uuid(),
 });
 
-export const ZUserSelect = createSelectSchema(schema.users, {
-  id: (schema) => schema.uuid(),
-  email: (schema) => schema.email(),
+export const ZPDFByIDParams = z.object({
+  id: z.string().uuid(),
 });
+
 
 export const ZUserByIDParams = z.object({
   id: z.string().uuid(),

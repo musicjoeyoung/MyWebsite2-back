@@ -1,61 +1,62 @@
-import { createFiberplane, createOpenAPISpec } from "@fiberplane/hono";
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import * as schema from "./db/schema";
-import { ZUserByIDParams, ZUserInsert } from "./dtos";
+
+import { createFiberplane, createOpenAPISpec } from "@fiberplane/hono";
+
+import { HTTPException } from "hono/http-exception";
+import { Hono } from "hono";
+import { R2Bucket } from '@cloudflare/workers-types';
+import { ZPDFByIDParams } from "./dtos";
 import { dbProvider } from "./middleware/dbProvider";
+import { eq } from "drizzle-orm";
 import { zodValidator } from "./middleware/validator";
 
-const api = new Hono()
+type Env = {
+  DB: D1Database;
+  R2: R2Bucket;
+};
+
+const api = new Hono<{ Bindings: Env }>()
+  //const api = new Hono()
   .use("*", dbProvider)
-  .get("/users", async (c) => {
+  .get("/pdfs", async (c) => {
     const db = c.var.db;
-    const users = await db.select().from(schema.users);
+    const pdfs = await db.select().from(schema.pdfs);
 
-    return c.json(users);
+    return c.json(pdfs);
   })
-  .post("/users", zodValidator("json", ZUserInsert), async (c) => {
-    const db = c.var.db;
-    const { name, email } = c.req.valid("json");
+api.get("/pdfs/:id/file", async (c) => {
+  const { id } = c.req.param();
 
-    const [newUser] = await db
-      .insert(schema.users)
-      .values({
-        name: name,
-        email: email,
-      })
-      .returning();
+  // Look up DB entry
+  const db = c.var.db;
+  const [pdf] = await db
+    .select()
+    .from(schema.pdfs)
+    .where(eq(schema.pdfs.id, id));
 
-    return c.json(newUser, 201);
-  })
-  .get("/users/:id", zodValidator("param", ZUserByIDParams), async (c) => {
-    const db = c.var.db;
-    const { id } = c.req.valid("param");
+  if (!pdf) {
+    return c.notFound();
+  }
 
-    const [user] = await db
-      .select()
-      .from(schema.users)
-      .where(eq(schema.users.id, id));
+  // Use the storageKey saved in DB to get from R2
+  const object = await c.env.R2.get(pdf.storageKey);
 
-    if (!user) {
-      return c.notFound();
-    }
+  if (!object) {
+    return c.notFound();
+  }
 
-    return c.json(user);
-  })
-  .delete("/users/:id", zodValidator("param", ZUserByIDParams), async (c) => {
-    const db = c.var.db;
-    const { id } = c.req.valid("param");
-
-    await db.delete(schema.users).where(eq(schema.users.id, id));
-
-    return c.body(null, 204);
+  // Return raw PDF
+  return new Response(object.body, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="${pdf.filename}"`,
+    },
   });
+});
 
 const app = new Hono()
   .get("/", (c) => {
-    return c.text("Honc from above! ☁️🪿");
+    return c.text("Welcome to the server for my website https://josephmyoung.com!");
   })
   .route("/api", api);
 
@@ -86,8 +87,9 @@ app.get("/openapi.json", (c) => {
   return c.json(
     createOpenAPISpec(app, {
       info: {
-        title: "Honc D1 App",
+        title: "PDF Server API",
         version: "1.0.0",
+        description: "API for serving PDF documents",
       },
     }),
   );
@@ -105,5 +107,7 @@ app.use(
     openapi: { url: "/openapi.json" },
   }),
 );
+
+
 
 export default app;

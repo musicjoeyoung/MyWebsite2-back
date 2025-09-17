@@ -1,12 +1,13 @@
-name = "honc-app"
+name = "josephmyoung-back"
 compatibility_date = "2025-02-04"
 compatibility_flags = [ "nodejs_compat" ]
 
+main = "src/index.ts"
+
 [[d1_databases]]
-binding = "DB"
-database_name = "honc-d1-database"
-database_id = "local-honc-d1-database"
-migrations_dir = "drizzle/migrations"
+binding = "josephmyoung_back"
+database_name = "josephmyoung-back"
+database_id = "198e4bff-08d6-4c63-bd34-6804d359f3cb"
 
 # [vars]
 # MY_VAR = "my-variable"
@@ -21,9 +22,9 @@ enabled = true
 # binding = "MY_KV_NAMESPACE"
 # id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
+[[r2_buckets]]
+bucket_name = "josephmyoung-back-bucket"
+binding = "R2"
 
 # [ai]
 # binding = "AI"
