@@ -8,6 +8,7 @@ main = "src/index.ts"
 binding = "josephmyoung_back"
 database_name = "josephmyoung-back"
 database_id = "198e4bff-08d6-4c63-bd34-6804d359f3cb"
+migrations_dir = "drizzle/migrations"
 
 # [vars]
 # MY_VAR = "my-variable"
