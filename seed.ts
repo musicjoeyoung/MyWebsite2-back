@@ -17,17 +17,17 @@ async function seedDatabase() {
     if (isProd) {
       console.warn("🚨 Seeding production database");
     }
-    
+
     // Read more about seeding here: https://orm.drizzle.team/docs/seed-overview#drizzle-seed
-    await seed(db, schema).refine((funcs) => ({
-      users: {
-        columns: {
-          id: funcs.uuid(),
-          createdAt: funcs.timestamp(),
-          updatedAt: funcs.timestamp(),
-        },
-      },
-    }));
+    /*     await seed(db, schema).refine((funcs) => ({
+          users: {
+            columns: {
+              id: funcs.uuid(),
+              createdAt: funcs.timestamp(),
+              updatedAt: funcs.timestamp(),
+            },
+          },
+        })); */
 
     console.log("✅ Database seeded successfully!");
   } catch (error) {
