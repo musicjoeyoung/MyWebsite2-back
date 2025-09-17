@@ -39,11 +39,8 @@ api.get("/pdfs/:id/file", async (c) => {
     return c.notFound();
   }
 
-  // Encode spaces/special characters for R2 get
-  const key = encodeURIComponent(pdf.storageKey).replace(/%2F/g, '/');
-  // Note: keeps slashes as slashes if your keys have folder paths
-
-  const object = await c.env.R2.get(key);
+  // Use the storageKey saved in DB to get from R2
+  const object = await c.env.R2.get(pdf.storageKey);
 
   if (!object) {
     return c.notFound();
@@ -57,7 +54,6 @@ api.get("/pdfs/:id/file", async (c) => {
     },
   });
 });
-
 
 const app = new Hono()
   .get("/", (c) => {
