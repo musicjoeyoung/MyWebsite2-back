@@ -1,15 +1,17 @@
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { createMiddleware } from "hono/factory";
 
+// Match the binding name from wrangler.toml
 export const dbProvider = createMiddleware<{
   Bindings: {
-    DB: D1Database;
+    josephmyoung_back: D1Database;
   };
   Variables: {
     db: DrizzleD1Database;
   };
 }>(async (c, next) => {
-  const db = drizzle(c.env.DB, {
+  // Use the correct binding
+  const db = drizzle(c.env.josephmyoung_back, {
     casing: "snake_case",
   });
 

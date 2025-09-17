@@ -11,9 +11,10 @@ import { eq } from "drizzle-orm";
 import { zodValidator } from "./middleware/validator";
 
 type Env = {
-  DB: D1Database;
+  josephmyoung_back: D1Database;
   R2: R2Bucket;
 };
+
 
 const api = new Hono<{ Bindings: Env }>()
   //const api = new Hono()
